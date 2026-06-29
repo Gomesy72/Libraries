@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Next Decade - Audio Library</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-hover: #7dd3fc;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 800px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .player-container {
+            position: sticky;
+            top: 20px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 30px;
+            border: 1px solid #334155;
+            z-index: 100;
+        }
+        .now-playing {
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        audio {
+            width: 100%;
+            height: 40px;
+            margin-bottom: 15px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .speed-btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .speed-btn:hover {
+            background: #475569;
+        }
+        .speed-btn.active {
+            background: var(--accent-color);
+            color: #0f172a;
+            font-weight: bold;
+        }
+        .chapter-list {
+            width: 100%;
+            max-width: 800px;
+            display: grid;
+            gap: 12px;
+        }
+        .chapter-card {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chapter-card:hover {
+            background: #2d3e50;
+            border-color: var(--accent-color);
+            transform: translateX(5px);
+        }
+        .chapter-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .chapter-title {
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        .play-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>The Next Decade</h1>
+        <p style="color: var(--text-secondary)">Interactive Audio Library: 2026 - 2036</p>
+    </header>
+
+    <div class="player-container">
+        <div class="now-playing" id="now-playing">Select a chapter to begin</div>
+        <audio id="main-player" controls></audio>
+        <div class="controls">
+            <span style="color: var(--text-secondary); font-size: 0.8rem; align-self: center; margin-right: 10px;">Speed:</span>
+            <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
+            <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+            <button class="speed-btn" onclick="setSpeed(1.25)">1.25x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+            <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+        </div>
+    </div>
+
+    <div class="chapter-list" id="chapter-list">
+        <!-- Chapters will be injected here by JS -->
+    </div>
+
+    <script>
+        const chapters = [
+            { title: "Front Matter", file: "00 - Front Matter.mp3" },
+            { title: "Opening Credits", file: "00a - Opening Credits.mp3" },
+            { title: "Introduction: Standing at the Threshold", file: "01 - Introduction - Standing at the Threshold.mp3" },
+            { title: "Chapter 1: The Intelligence Revolution", file: "02 - Chapter 1 - The Intelligence Revolution - AI and the Path to AGI.mp3" },
+            { title: "Chapter 2: The Rise of the Machines", file: "03 - Chapter 2 - The Rise of the Machines - Robotics and Automation.mp3" },
+            { title: "Chapter 3: The End of Driving", file: "04 - Chapter 3 - The End of Driving - Autonomous Vehicles.mp3" },
+            { title: "Chapter 4: Skies of Tomorrow", file: "05 - Chapter 4 - Skies of Tomorrow - Drones and Aerial Mobility.mp3" },
+            { title: "Chapter 5 Part 1: Defeating Death", file: "06 - Chapter 5 Part 1 - Defeating Death - Medicine and Longevity.mp3" },
+            { title: "Chapter 5 Part 2: The Post-2036 Horizon", file: "07 - Chapter 5 Part 2 - Defeating Death - The Post-2036 Horizon.mp3" },
+            { title: "Chapter 6 Part 1: The Invisible World", file: "08 - Chapter 6 Part 1 - The Invisible World - Nanotechnology.mp3" },
+            { title: "Chapter 6 Part 2: Risk and Responsibility", file: "09 - Chapter 6 Part 2 - The Invisible World - Risk and Responsibility.mp3" },
+            { title: "Chapter 7 Part 1: Computing Reality", file: "10 - Chapter 7 Part 1 - Computing Reality - Quantum Computers.mp3" },
+            { title: "Chapter 7 Part 2: Geopolitical Implications", file: "11 - Chapter 7 Part 2 - Computing Reality - Economic and Geopolitical Implications.mp3" },
+            { title: "Chapter 8 Part 1: Energy Transformation", file: "12 - Chapter 8 Part 1 - Powering Civilization - Energy Transformation.mp3" },
+            { title: "Chapter 8 Part 2: Economic Implications", file: "13 - Chapter 8 Part 2 - Powering Civilization - Economic and Geopolitical Implications.mp3" },
+            { title: "Chapter 9 Part 1: Space Exploration", file: "14 - Chapter 9 Part 1 - Beyond Earth - Space Exploration.mp3" },
+            { title: "Chapter 9 Part 2: Key Technologies", file: "15 - Chapter 9 Part 2 - Beyond Earth - Key Technologies and Capabilities.mp3" },
+            { title: "Chapter 10: Brain-Computer Interfaces", file: "16 - Chapter 10 - Mind Meets Machine - Brain-Computer Interfaces.mp3" },
+            { title: "Chapter 11 Part 1: The Convergence", file: "17 - Chapter 11 Part 1 - The Convergence - When Technologies Collide.mp3" },
+            { title: "Chapter 11 Part 2: AI Plus Everything", file: "18 - Chapter 11 Part 2 - The Convergence - AI Plus Everything and How AI Works.mp3" },
+            { title: "Chapter 12 Part 1: Living in 2036", file: "19 - Chapter 12 Part 1 - Society Transformed - Living in 2036.mp3" },
+            { title: "Chapter 12 Part 2: Psychological Landscape", file: "20 - Chapter 12 Part 2 - Society Transformed - The Psychological Landscape.mp3" },
+            { title: "Chapter 13 Part 1: Work and Wealth", file: "21 - Chapter 13 Part 1 - The Economic Revolution - Work and Wealth.mp3" },
+            { title: "Chapter 13 Part 2: Post-2036 Horizon", file: "22 - Chapter 13 Part 2 - The Economic Revolution - The Post-2036 Horizon.mp3" },
+            { title: "Chapter 14 Part 1: Enhancement Ethics", file: "23 - Chapter 14 Part 1 - Ethics and Existence - Human Enhancement Ethics.mp3" },
+            { title: "Chapter 14 Part 2: Ethical Frameworks", file: "24 - Chapter 14 Part 2 - Ethics and Existence - Comparative Ethical Frameworks.mp3" },
+            { title: "Chapter 15: Long-Term Visions", file: "25 - Chapter 15 - The World Beyond 2036 - Long-Term Visions.mp3" },
+            { title: "Chapter 16: Global Perspectives", file: "26 - Chapter 16 - Global Perspectives - How the World Approaches the Future.mp3" },
+            { title: "Chapter 17 Part 1: Forecasting", file: "27 - Chapter 17 Part 1 - Data and Evidence - Forecasting and Foundations.mp3" },
+            { title: "Chapter 17 Part 2: Longevity Data", file: "28 - Chapter 17 Part 2 - Data and Evidence - Technology and Longevity Data.mp3" },
+            { title: "Chapter 18: Preparing for the Future", file: "29 - Chapter 18 - The Human Response - Preparing for the Future.mp3" },
+            { title: "References and Sources", file: "30 - References and Sources - Bibliography.mp3" },
+            { title: "Closing Credits", file: "30b - Closing Credits.mp3" }
+        ];
+
+        const player = document.getElementById('main-player');
+        const nowPlaying = document.getElementById('now-playing');
+        const listContainer = document.getElementById('chapter-list');
+
+        // Use GitHub raw content URL
+        const BASE_URL = 'https://raw.githubusercontent.com/Gomesy72/Libraries/main/audio/';
+
+        function setSpeed(speed) {
+            player.playbackRate = speed;
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText === speed + 'x') btn.classList.add('active');
+            });
+        }
+
+        function playChapter(title, file) {
+            const url = BASE_URL + encodeURIComponent(file);
+            player.src = url;
+            player.play();
+            nowPlaying.innerText = "Playing: " + title;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        chapters.forEach(ch => {
+            const card = document.createElement('div');
+            card.className = 'chapter-card';
+            card.innerHTML = `
+                <div class="chapter-info">
+                    <div class="chapter-title">${ch.title}</div>
+                </div>
+                <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            `;
+            card.onclick = () => playChapter(ch.title, ch.file);
+            listContainer.appendChild(card);
+        });
+    </script>
+</body>
+</html>
